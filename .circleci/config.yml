@@ -1,0 +1,36 @@
+version: 2.1
+executors:
+  default-executor:
+    docker:
+      - image: circleci/ruby:2.3.7
+        environment:
+          BUNDLE_PATH: vendor/bundle
+          CIRCLE_ARTIFACTS: /tmp/artifacts
+          CIRCLE_TEST_REPORTS: /tmp/artifacts/test_reports
+          COVERAGE: true
+          NODE_ENV: test
+          RAILS_ENV: test
+          TZ: /usr/share/zoneinfo/Asia/Tokyo
+      - image: circleci/mysql:5.6
+        environment:
+          MYSQL_ROOT_PASSWORD: root
+      - image: redis:3
+      - image: circleci/dynamodb
+    working_directory: ~/app
+jobs:
+  setup-dependencies:
+    executor: default-executor
+    steps:
+      - run: env
+  build:
+    executor: default-executor
+    steps:
+      - run: env
+workflows:
+  version: 2
+  setup-dependencies-and-build:
+    jobs:
+      - setup-dependencies
+      - build:
+          requires:
+            - setup-dependencies
